@@ -95,9 +95,11 @@ Run the comprehensive validation below.
 
 On clients with configured repository hooks, PostToolUse runs
 `validate_controls.py` per-file checks and Stop runs cross-artifact and pipeline
-integrity checks. On Codex, execute these checks explicitly as required by the
-[orchestrator](../service-approval/SKILL.md#codex-execution-and-validation).
-Do not treat the absence of an automatic hook failure as a passing validation.
+integrity checks. Codex's project hooks adapt its native patch/shell events to
+the same validators. Follow the
+[orchestrator](../service-approval/SKILL.md#codex-execution-and-validation)
+for hook setup and the required phase/review gates.
+If hooks are inactive, run the validators explicitly and disclose that limitation.
 
 ---
 

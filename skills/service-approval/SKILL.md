@@ -257,11 +257,11 @@ snapshot. See [MCP configuration](../../docs/MCP.md).
 Inspect the active session's tools for the two required servers. Client/plugin
 prefixes may differ; match the documented AWS search/read capabilities.
 Use existing connections without adding duplicates. For missing servers, follow
-[Codex MCP configuration](../../docs/MCP.md#codex), preserving existing user
-settings. Reconnect as needed and verify a search/read before relying on the
-connection. Do not run the Claude/Kiro installers for Codex or assume that the
-repository's JSON MCP files configure it. Log every actual MCP call using the
-canonical audit format above.
+[Codex MCP configuration](../../docs/MCP.md#codex): the common installer/sync
+generates the project TOML and hooks from the manifest. Preserve unrelated
+settings and the user's native trust decisions. Reconnect as needed and verify
+a search/read before relying on the connection. Log every actual MCP call using
+the canonical audit format above.
 
 **Claude Code:**
 ```bash
@@ -436,13 +436,19 @@ conversation history. When using Sequential Mode, retain the mapping and
 generation review gates described in Parallel Mode, including the conflict
 review; mark any review that cannot be performed as incomplete.
 
-The repository does not register Codex hooks. You MUST:
+The common installer registers project-local Codex hooks. The user must trust
+the project and review the exact hook definitions in Codex before they run;
+never mark hooks trusted or bypass that review on the user's behalf. Hooks
+adapt patches and shell edits and invoke the shared Stop validation.
+You MUST still follow the same phase/review requirements as the other clients:
 
 1. Run the published-model prerequisite before assessment/research and on resume,
    as specified by the phase skills.
-2. After state writes run `tools/validate/validate_state.py <file>`; after control
-   writes run `tools/validate/validate_controls.py <file>`. Use the actual file
-   path and repair failures before consuming the file downstream.
+2. Inspect validation feedback after writes and repair failures before consuming
+   the file downstream. If hooks are unavailable or untrusted, explicitly run
+   `tools/validate/validate_state.py <file>` for state and
+   `tools/validate/validate_controls.py <file>` for controls, and disclose that
+   hook integration was inactive.
 3. Run `tools/validate/check_phase_complete.py --slug <slug> --phase <NN-name>`
    at each phase boundary. Existence alone is not enough.
 4. Execute every phase's semantic checks and review gates. After Summarize,
@@ -453,9 +459,9 @@ The repository does not register Codex hooks. You MUST:
 5. Record real check results and any skipped checks in the run diagnostics.
    Report completion only after the required gates pass.
 
-These are explicit agent execution requirements, not automatic client hook
-registration. Keep customer inputs, retrieved models, derived state, and review
-ZIPs outside the source checkout.
+Keep customer inputs, retrieved models, derived state, and review ZIPs outside
+the source checkout. `tools/setup-codex.py --workspace <external-directory>`
+installs the same project configuration and shared skill links there.
 
 ---
 

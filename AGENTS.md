@@ -14,9 +14,9 @@ git clone <repo> && cd service-onboarding-accelerator-on-aws && ./install.sh
 
 Windows: `./install.ps1` (requires Developer Mode for symlink installs).
 
-The installer detects Claude Code, Kiro, and Copilot. For Codex, use the shared
-`.agents/skills/` discovery path and the explicit MCP setup in
-[`docs/USAGE-CODEX.md`](docs/USAGE-CODEX.md).
+The installer configures Claude Code, Codex, Kiro, and Copilot. Codex uses the
+shared `.agents/skills/` discovery path plus generated project MCP and hooks
+configuration. See [`docs/USAGE-CODEX.md`](docs/USAGE-CODEX.md).
 
 ## Update
 
@@ -97,8 +97,8 @@ See [`README.md`](README.md) for per-phase artifact counts and the full flag ref
    point to the reference or route the objective to detective.
 
 The Stop hook runs `tools/validate/validate_pipeline_integrity.py` and blocks violations.
-Codex must execute the same validation gates explicitly; the repository does not
-register Codex hooks. Follow the Codex execution instructions in
+Codex's project hooks adapt native patch/shell events to the same validators.
+The user must review and trust the hooks in Codex before they run. Follow
 [`skills/service-approval/SKILL.md`](skills/service-approval/SKILL.md) and
 [`docs/USAGE-CODEX.md`](docs/USAGE-CODEX.md#validation). A silent Stop-hook exit
 without generated artifacts is not evidence of a completed run.
@@ -123,6 +123,7 @@ on `docs.aws.amazon.com`. See [How no-MCP mode works](docs/NO-MCP.md) and
 | `rules/` | Safety rules applied across all phases |
 | `.claude-plugin/` | Claude Code plugin manifest |
 | `.github/` | Copilot agents, prompts, chatmodes, skills, hooks |
+| `.codex/` | Generated project MCP configuration and native validation hooks |
 | `powers/service-approval/` | Kiro Power (CLI 2.0 format) |
 
 ## Client-specific notes
@@ -130,7 +131,7 @@ on `docs.aws.amazon.com`. See [How no-MCP mode works](docs/NO-MCP.md) and
 | Client | Entry point | Auto-discovers? |
 |--------|-------------|-----------------|
 | Claude Code | `.claude-plugin/plugin.json` | Yes |
-| Codex | `.agents/skills/service-approval/SKILL.md` + `AGENTS.md` | Skills: yes; configure MCP separately |
+| Codex | `.agents/skills/` + `.codex/` + `AGENTS.md` | Yes; review project hooks on first use |
 | GitHub Copilot | `.github/agents/service-approval.agent.md` | Yes |
 | Kiro CLI | `powers/service-approval/POWER.md` | After `./install.sh` |
 

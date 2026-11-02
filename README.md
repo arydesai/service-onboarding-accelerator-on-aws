@@ -113,7 +113,7 @@ cd service-onboarding-accelerator-on-aws
 ./install-claude.sh
 ```
 
-**Claude Code + Kiro + Copilot — auto-detects what's installed:**
+**All clients (Claude Code + Codex + Kiro + Copilot):**
 
 ```bash
 git clone git@github.com:awslabs/service-onboarding-accelerator-on-aws.git
@@ -123,16 +123,10 @@ cd service-onboarding-accelerator-on-aws
 .\install.ps1
 ```
 
-**Codex — shared skills with explicit MCP setup:**
-
-Codex discovers the skills through `.agents/skills/` and reads the repository's
-`AGENTS.md`. Follow [Codex setup and usage](docs/USAGE-CODEX.md) to configure the
-required MCP servers, run the validation commands, and keep customer inputs and
-generated outputs in a workspace outside this checkout. The install scripts
-above do not configure Codex.
-
-The workflow has been [tested end to end with Codex](docs/TESTING-CODEX.md),
-using Amazon Aurora DSQL and a custom FINOS CCC framework.
+The installer synchronizes client configuration from `manifest.yaml`, including
+Codex's project MCP servers and validation hooks. Open your client, complete its
+normal project/tool trust prompts, and run the pipeline. In Codex, review and
+trust the project hooks on first use. See the per-client guides below.
 
 Update any time with `git pull` (re-run the install script for Claude Code so the
 marketplace symlink refreshes). To auto-sync on every pull:
@@ -360,8 +354,9 @@ AWS Threat Model-factual check, and conflict detection — are described in
 The **artifact correctness checks** below confirm the generated control
 artifacts are syntactically valid and policy-sound. Configured hooks run checks
 after writes and at session end on clients with the repository's hook integration.
-Codex runs the same validators explicitly after writes, between phases, and before
-completion; see [Codex validation](docs/USAGE-CODEX.md#validation).
+Codex's adapter handles patch and shell edits and invokes the shared validators
+automatically once its hooks are trusted. Phase checks and review gates remain
+part of the shared skill workflow on every client.
 
 **Tier 1 — Static (no credentials)**
 - JSON/YAML parse, Python handler compilation

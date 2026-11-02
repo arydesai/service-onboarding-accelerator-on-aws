@@ -2,8 +2,7 @@
 
 Short version: `git clone && cd && install the Python packages && ./install.sh`.
 That's it for most clients.
-For Codex, follow [USAGE-CODEX.md](USAGE-CODEX.md): skills use the shared discovery
-path, MCP setup is explicit, and validation commands are required.
+All four clients use the same shared skills and manifest-driven configuration.
 
 ## Prerequisites
 
@@ -35,17 +34,20 @@ py -m venv .venv ; .\.venv\Scripts\pip install -r requirements.txt
 .\install.ps1
 ```
 
-The installer detects Claude Code, Kiro, and Copilot and wires them up. Re-run
-anytime. Idempotent. It does not configure Codex MCP servers or hooks.
+The installer configures Claude Code, Codex, Kiro, and Copilot. Re-run anytime.
+Codex's MCP configuration and validation hooks are generated under `.codex/`.
 
 ## Per-client install detail
 
-### Codex — shared skills
+### Codex
 
 Codex discovers `.agents/skills/`, a symlink to this repository's `skills/`,
-and reads `AGENTS.md`. No generated Codex manifest is required.
-Follow [USAGE-CODEX.md](USAGE-CODEX.md) for the MCP configuration, an external
-runtime workspace, a custom-framework example, and explicit validation.
+and reads `AGENTS.md`. The same install/sync commands generate `.codex/config.toml`
+and `.codex/hooks.json`. Open the project, trust it, and review the hooks in
+Codex before the first run. Hooks validate native patches, shell-written artifacts,
+and completed runs with the shared validators.
+Follow [USAGE-CODEX.md](USAGE-CODEX.md) for an external runtime workspace,
+a custom-framework example, and troubleshooting.
 
 ### Claude Code — scripted install (recommended)
 
@@ -131,8 +133,9 @@ Run the check mode:
 
 Prints what would be installed without making changes. Use to confirm detection
 worked before a real install.
-For Codex, use the setup checks in [USAGE-CODEX.md](USAGE-CODEX.md#verify-setup);
-`install.sh --check` does not check Codex.
+This also checks Codex configuration for drift without writing files. MCP
+connectivity and native hook trust are checked in the running client; see
+[USAGE-CODEX.md](USAGE-CODEX.md#verify-setup).
 
 ## Updating
 
@@ -155,9 +158,9 @@ Delete the repo. Optionally remove the Power from Kiro first:
 2. Remove **service-approval**
 
 Neither is strictly required — with the repo gone, the clients stop discovering it.
-For Codex, also remove any external workspace skill/instruction symlinks you
-created. Remove MCP entries from your user configuration only if no other
-workflow uses those servers. Keep customer inputs and review outputs as needed.
+For Codex, remove the generated Service Approval MCP block and hook handlers
+from external workspaces, along with their skill/instruction symlinks. Keep any
+unrelated configuration and customer inputs/review outputs as needed.
 
 ## Kiro-specific testing and troubleshooting
 

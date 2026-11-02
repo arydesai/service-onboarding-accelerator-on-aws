@@ -13,33 +13,24 @@ not install it automatically.
 
 ## Codex
 
-Merge these entries into your user `~/.codex/config.toml`, preserving existing
-settings. If equivalent servers are already connected through a plugin, use
-those connections instead of registering duplicates.
+`install.sh` / `install.ps1` generate the two required servers in
+[`.codex/config.toml`](../.codex/config.toml) from [`manifest.yaml`](../manifest.yaml),
+alongside [validation hooks](../.codex/hooks.json). `--sync` / `-Sync` refresh them
+after updates. No user-level configuration is modified.
 
-```toml
-[mcp_servers.awsknowledge]
-url = "https://knowledge-mcp.global.api.aws"
-
-[mcp_servers.aws-documentation]
-command = "uvx"
-args = ["awslabs.aws-documentation-mcp-server@1.1.28"]
-
-[mcp_servers.aws-documentation.env]
-FASTMCP_LOG_LEVEL = "ERROR"
-AWS_DOCUMENTATION_PARTITION = "aws"
-```
-
-These values match [`manifest.yaml`](../manifest.yaml). After a manifest update,
-check whether your manually configured server version needs updating. The
-repository's sync and install scripts do not write Codex configuration.
-If `uvx` is not on Codex's PATH, use its installed absolute path as `command`.
+The generated MCP block is owned by the installer. Put unrelated settings outside
+its markers; the sync preserves them and other hook handlers. If required server
+names already exist outside the managed block, setup stops before writing either
+file so you can reconcile the duplicate project entries. Do not duplicate
+connections supplied by an already-installed plugin.
 
 Restart or reconnect the servers after changing the configuration. Verify both
 servers with a documentation search and page read in the active Codex session;
 a configured entry alone does not prove connectivity. See
 [OpenAI's MCP documentation](https://developers.openai.com/codex/mcp/) for
 configuration details and [Codex usage](USAGE-CODEX.md) for the complete workflow.
+Codex loads project configuration only for trusted projects; hooks also require
+review and trust. If `uvx` is unavailable, fix Codex's PATH before using the server.
 
 The optional MITRE server is not needed for the documented setup. Codex can use
 the bundled ATT&CK snapshot under the same rules as the other clients.
@@ -52,6 +43,7 @@ Print the current pinned configuration for your client:
 python3 tools/sync-ide-configs.py --optional-mcp-config mitre-attack --client claude-code
 python3 tools/sync-ide-configs.py --optional-mcp-config mitre-attack --client copilot
 python3 tools/sync-ide-configs.py --optional-mcp-config mitre-attack --client kiro
+python3 tools/sync-ide-configs.py --optional-mcp-config mitre-attack --client codex
 ```
 
 Run only the command for your client. These commands print a configuration
@@ -61,6 +53,7 @@ existing entries. For Kiro the user config is `~/.kiro/settings/mcp.json`; in VS
 Code use the user MCP configuration opened by **MCP: Open User Configuration**.
 Claude Code users can register the printed `uvx` command/arguments through
 `claude mcp add --scope user`.
+The Codex command prints TOML for its user `~/.codex/config.toml`.
 
 Keep this personal opt-in out of the repository's generated configs. Running the
 normal sync command regenerates the required-only defaults. The manifest remains

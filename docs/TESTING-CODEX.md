@@ -27,8 +27,9 @@ and report-writing instructions are now versioned so future clients can resolve
 those prerequisites from a clean checkout.
 
 This record establishes execution with configured tools and explicit gates.
-It does not establish automatic installer or hook integration, clean-machine
-onboarding, no-MCP execution, live deployment, or AWS API policy validation.
+The October run predates the installer/hook integration below. It does not
+establish clean-machine onboarding, no-MCP execution, live deployment, or AWS
+API policy validation.
 Passing checks also does not establish full framework coverage or resolve every
 service-capability question.
 
@@ -36,3 +37,26 @@ The detailed evidence bundle remains outside the repository. Customer inputs,
 threat-model snapshots, generated runtime state, and the output ZIP are not
 included here. Follow [USAGE-CODEX.md](USAGE-CODEX.md) for a new run with your own
 framework input; the new run records its own source version and evidence.
+
+## Installer and hook adapter checks
+
+The November 2026 integration adds manifest-generated Codex project configuration
+to the common installers and sync command. Regression tests use temporary
+workspaces and synthetic model inputs to exercise:
+
+- Default and optional MCP configuration, idempotent sync, and preservation of
+  unrelated configuration and hook handlers.
+- External workspace setup and execution of generated hook commands from paths
+  with spaces and nested Git directories.
+- Multi-file patches, moves, deletion/replacement, and missing-model rejection
+  before writes.
+- Post-write validation of state and controls, including shell edits that preserve
+  file size and timestamps, staging intake, and concurrent tool snapshots.
+- Stop-time checks for unobserved invalid writes and the shared integrity validator.
+- Shell installer install/sync/check/quiet modes and failure propagation.
+
+These tests invoke the adapter with Codex's documented event payloads and execute
+the generated commands. They do not grant native hook trust or claim a fresh
+automatic end-to-end agent run. Codex's normal project/hook trust review must be
+completed in the target client. The PowerShell wiring follows the same helper
+and configuration but has not been executed on Windows in this test environment.
