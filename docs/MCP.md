@@ -11,6 +11,39 @@ that source/version. If an enabled server fails, research falls back to that sam
 snapshot. A missing optional server is not a preflight failure, and agents must
 not install it automatically.
 
+## Codex
+
+Merge these entries into your user `~/.codex/config.toml`, preserving existing
+settings. If equivalent servers are already connected through a plugin, use
+those connections instead of registering duplicates.
+
+```toml
+[mcp_servers.awsknowledge]
+url = "https://knowledge-mcp.global.api.aws"
+
+[mcp_servers.aws-documentation]
+command = "uvx"
+args = ["awslabs.aws-documentation-mcp-server@1.1.28"]
+
+[mcp_servers.aws-documentation.env]
+FASTMCP_LOG_LEVEL = "ERROR"
+AWS_DOCUMENTATION_PARTITION = "aws"
+```
+
+These values match [`manifest.yaml`](../manifest.yaml). After a manifest update,
+check whether your manually configured server version needs updating. The
+repository's sync and install scripts do not write Codex configuration.
+If `uvx` is not on Codex's PATH, use its installed absolute path as `command`.
+
+Restart or reconnect the servers after changing the configuration. Verify both
+servers with a documentation search and page read in the active Codex session;
+a configured entry alone does not prove connectivity. See
+[OpenAI's MCP documentation](https://developers.openai.com/codex/mcp/) for
+configuration details and [Codex usage](USAGE-CODEX.md) for the complete workflow.
+
+The optional MITRE server is not needed for the documented setup. Codex can use
+the bundled ATT&CK snapshot under the same rules as the other clients.
+
 ## Enable MITRE MCP
 
 Print the current pinned configuration for your client:

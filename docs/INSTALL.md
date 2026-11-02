@@ -2,10 +2,12 @@
 
 Short version: `git clone && cd && install the Python packages && ./install.sh`.
 That's it for most clients.
+For Codex, follow [USAGE-CODEX.md](USAGE-CODEX.md): skills use the shared discovery
+path, MCP setup is explicit, and validation commands are required.
 
 ## Prerequisites
 
-- A client: Claude Code, Kiro IDE, or VS Code + GitHub Copilot
+- A client: Claude Code, Codex, Kiro IDE, or VS Code + GitHub Copilot
 - [`git`](https://git-scm.com/downloads)
 - [Python](https://www.python.org/downloads/) 3.9+ (`python3 --version`)
 - The Python packages in [`requirements.txt`](../requirements.txt) (installed below)
@@ -33,10 +35,17 @@ py -m venv .venv ; .\.venv\Scripts\pip install -r requirements.txt
 .\install.ps1
 ```
 
-The installer detects which CLIs you have installed and wires each one up. Re-run
-anytime. Idempotent.
+The installer detects Claude Code, Kiro, and Copilot and wires them up. Re-run
+anytime. Idempotent. It does not configure Codex MCP servers or hooks.
 
 ## Per-client install detail
+
+### Codex — shared skills
+
+Codex discovers `.agents/skills/`, a symlink to this repository's `skills/`,
+and reads `AGENTS.md`. No generated Codex manifest is required.
+Follow [USAGE-CODEX.md](USAGE-CODEX.md) for the MCP configuration, an external
+runtime workspace, a custom-framework example, and explicit validation.
 
 ### Claude Code — scripted install (recommended)
 
@@ -122,6 +131,8 @@ Run the check mode:
 
 Prints what would be installed without making changes. Use to confirm detection
 worked before a real install.
+For Codex, use the setup checks in [USAGE-CODEX.md](USAGE-CODEX.md#verify-setup);
+`install.sh --check` does not check Codex.
 
 ## Updating
 
@@ -130,6 +141,7 @@ git pull
 ```
 
 Auto-discovered clients (Claude Code, Copilot) read the latest files every session.
+Codex follows the shared skill symlinks; restart it if updated skills do not appear.
 Kiro reads from the Power path — re-add the Power if you move the repo.
 
 If an IDE caches configs, restart the client after a pull that changes MCP servers
@@ -143,6 +155,9 @@ Delete the repo. Optionally remove the Power from Kiro first:
 2. Remove **service-approval**
 
 Neither is strictly required — with the repo gone, the clients stop discovering it.
+For Codex, also remove any external workspace skill/instruction symlinks you
+created. Remove MCP entries from your user configuration only if no other
+workflow uses those servers. Keep customer inputs and review outputs as needed.
 
 ## Kiro-specific testing and troubleshooting
 

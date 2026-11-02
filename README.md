@@ -9,7 +9,7 @@ responsive controls. It recommends the controls — **you deploy them yourself**
 the tool never touches a live account.
 
 It runs as [Agent Skills](https://agentskills.io), so the same skills work in
-Claude Code, Kiro, and GitHub Copilot.
+Claude Code, Codex, Kiro, and GitHub Copilot.
 
 ---
 
@@ -22,7 +22,7 @@ You do need a few common developer tools.
 | You need | When | Why |
 |----------|------|-----|
 | A published [AWS Threat Model](https://github.com/aws/threat-models-for-aws-services) and network access to GitHub | always | retrieved automatically from the latest release; unpublished services or retrieval failures stop the pipeline |
-| One of: Claude Code, Kiro IDE, or VS Code + GitHub Copilot | always | the client that runs the skills |
+| One of: Claude Code, Codex, Kiro IDE, or VS Code + GitHub Copilot | always | the client that runs the skills |
 | [`git`](https://git-scm.com/downloads) | always | to clone this repository |
 | [Python](https://www.python.org/downloads/) 3.9 or newer | always | the validators and hooks that gate the pipeline |
 | The Python packages in [`requirements.txt`](requirements.txt) | always | `pyyaml`, `jsonschema`, `pytest`, and helpers the tooling imports |
@@ -34,6 +34,7 @@ You do need a few common developer tools.
 If you are starting with none of the above, work through these once:
 
 1. **Install a client** — [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview),
+   [Codex](https://developers.openai.com/codex/),
    [Kiro](https://kiro.dev/), or VS Code with the
    [GitHub Copilot](https://code.visualstudio.com/docs/copilot/overview) extension.
 2. **Install git** — [git-scm.com/downloads](https://git-scm.com/downloads); check with `git --version`.
@@ -112,7 +113,7 @@ cd service-onboarding-accelerator-on-aws
 ./install-claude.sh
 ```
 
-**All clients (Claude Code + Kiro + Copilot — auto-detects what's installed):**
+**Claude Code + Kiro + Copilot — auto-detects what's installed:**
 
 ```bash
 git clone git@github.com:awslabs/service-onboarding-accelerator-on-aws.git
@@ -121,6 +122,17 @@ cd service-onboarding-accelerator-on-aws
 # or Windows PowerShell:
 .\install.ps1
 ```
+
+**Codex — shared skills with explicit MCP setup:**
+
+Codex discovers the skills through `.agents/skills/` and reads the repository's
+`AGENTS.md`. Follow [Codex setup and usage](docs/USAGE-CODEX.md) to configure the
+required MCP servers, run the validation commands, and keep customer inputs and
+generated outputs in a workspace outside this checkout. The install scripts
+above do not configure Codex.
+
+The workflow has been [tested end to end with Codex](docs/TESTING-CODEX.md),
+using Amazon Aurora DSQL and a custom FINOS CCC framework.
 
 Update any time with `git pull` (re-run the install script for Claude Code so the
 marketplace symlink refreshes). To auto-sync on every pull:
@@ -135,6 +147,7 @@ guides:
 | Client | Guide |
 |--------|-------|
 | Claude Code | [`docs/USAGE-CLAUDE-CODE.md`](docs/USAGE-CLAUDE-CODE.md) |
+| Codex | [`docs/USAGE-CODEX.md`](docs/USAGE-CODEX.md) |
 | Kiro IDE | [`docs/USAGE-KIRO.md`](docs/USAGE-KIRO.md) |
 | GitHub Copilot | [`docs/USAGE-COPILOT.md`](docs/USAGE-COPILOT.md) |
 | All clients + troubleshooting | [`docs/INSTALL.md`](docs/INSTALL.md) |
@@ -188,6 +201,17 @@ corresponding prompt.
 ```
 run service approval for lambda
 ```
+
+**Codex** — ask it to follow the orchestrator:
+
+```text
+Follow skills/service-approval/SKILL.md and run service approval for Amazon Aurora
+DSQL with --framework=custom and --framework-file=/absolute/path/to/ccc-rdms-catalog.md.
+Run every phase and validation gate, then provide the summary and output locations.
+```
+
+Use the [Codex guide](docs/USAGE-CODEX.md#run-the-pipeline) for execution from an
+external workspace. Skill arguments belong in the prompt; they are not Codex CLI flags.
 
 **GitHub Copilot** — `@`-mention in Agent mode:
 
@@ -334,8 +358,10 @@ AWS Threat Model-factual check, and conflict detection — are described in
 [`docs/DESIGN.md`](docs/DESIGN.md).
 
 The **artifact correctness checks** below confirm the generated control
-artifacts are syntactically valid and policy-sound, and run automatically at
-session end:
+artifacts are syntactically valid and policy-sound. Configured hooks run checks
+after writes and at session end on clients with the repository's hook integration.
+Codex runs the same validators explicitly after writes, between phases, and before
+completion; see [Codex validation](docs/USAGE-CODEX.md#validation).
 
 **Tier 1 — Static (no credentials)**
 - JSON/YAML parse, Python handler compilation
